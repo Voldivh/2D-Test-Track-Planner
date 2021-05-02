@@ -107,7 +107,7 @@ void Speaker::speakerCb(const std_msgs::msg::Int8::SharedPtr msg)
         ********************************************/
         else 
         {
-            readfd = open((m_path + "track2.wav").c_str(), O_RDONLY);
+            readfd = open((m_path + "2.wav").c_str(), O_RDONLY);
             status = pthread_create(&pthread_id, NULL, (THREADFUNCPTR)&Speaker::PlaySound, this);
         }
         /********************************************
