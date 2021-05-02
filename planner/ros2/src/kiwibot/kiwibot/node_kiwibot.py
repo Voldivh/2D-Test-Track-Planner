@@ -25,7 +25,6 @@ from usr_srvs.srv import Move
 from usr_srvs.srv import Turn
 
 from std_msgs.msg import Int8
-from std_msgs.msg import Bool
 
 from usr_msgs.msg import Kiwibot as kiwibot_status
 
@@ -104,7 +103,7 @@ class KiwibotNode(Node):
 
         # Subscribers
         self.sub_routine_status = self.create_subscription(
-            msg_type=Bool,
+            msg_type=Int8,
             topic="/path_planner/routine_status",
             callback=self.cb_routine_status,
             qos_profile=qos_profile_sensor_data,
@@ -129,7 +128,7 @@ class KiwibotNode(Node):
             callback_group=self.callback_group,
         )
 
-    def cb_routine_status(self, msg: Bool):
+    def cb_routine_status(self, msg: Int8):
         self.routine_status = msg.data
 
     def cb_srv_robot_turn(self, request, response) -> Turn:
@@ -148,7 +147,7 @@ class KiwibotNode(Node):
 
             for idx, turn_ref in enumerate(request.turn_ref[:-1]):
 
-                while self.routine_status:
+                while self.routine_status == 1:
                     pass
 
                 if self._TURN_PRINT_WAYPOINT:
@@ -197,7 +196,7 @@ class KiwibotNode(Node):
         try:
 
             for wp in request.waypoints:
-                while self.routine_status:
+                while self.routine_status == 1:
                     pass
 
                 if self._FORWARE_PRINT_WAYPOINT:
