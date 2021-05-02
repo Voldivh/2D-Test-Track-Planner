@@ -108,7 +108,6 @@ class PlannerNode(Node):
         self.map_difficulty = 0.0  # Map difficulty [0.0-5.0]
         self.map_distance = 0.0  # Map distance in [m]
         self.way_points = {}  # List of waypoints in the path planning routine
-
         self._in_execution = False
 
         # Read routines from the yaml file in the configs folder
@@ -209,6 +208,9 @@ class PlannerNode(Node):
     def cb_routine_status(self, msg: Int8) -> None:
         if msg.data == 0 or msg.data == 1:
             self.pub_speaker.publish(Int8(data=0))
+        else:
+            self.way_points = {}
+            self._in_execution = False
 
     def cb_start_routine(self, msg: Int32) -> None:
         """

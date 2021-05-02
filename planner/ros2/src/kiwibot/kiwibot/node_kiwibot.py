@@ -147,7 +147,22 @@ class KiwibotNode(Node):
 
             for idx, turn_ref in enumerate(request.turn_ref[:-1]):
 
-                while self.routine_status == 1:
+                while self.routine_status:
+                    if self.routine_status == 2:
+                        printlog(
+                            msg="The routine was cancelled",
+                            msg_type="OKGREEN",
+                        )
+                        self.status.moving = False
+                        self.status.yaw = float(
+                            os.getenv("BOT_INITIAL_YAW", default=0.0)
+                        )
+                        self.status.pos_x = int(os.getenv("BOT_INITIAL_X", default=917))
+                        self.status.pos_y = int(
+                            os.getenv("BOT_INITIAL_Y", default=1047)
+                        )
+                        self.pub_bot_status.publish(self.status)
+                        return False
                     pass
 
                 if self._TURN_PRINT_WAYPOINT:
@@ -196,7 +211,22 @@ class KiwibotNode(Node):
         try:
 
             for wp in request.waypoints:
-                while self.routine_status == 1:
+                while self.routine_status:
+                    if self.routine_status == 2:
+                        printlog(
+                            msg="The routine was cancelled",
+                            msg_type="OKGREEN",
+                        )
+                        self.status.moving = False
+                        self.status.yaw = float(
+                            os.getenv("BOT_INITIAL_YAW", default=0.0)
+                        )
+                        self.status.pos_x = int(os.getenv("BOT_INITIAL_X", default=917))
+                        self.status.pos_y = int(
+                            os.getenv("BOT_INITIAL_Y", default=1047)
+                        )
+                        self.pub_bot_status.publish(self.status)
+                        return False
                     pass
 
                 if self._FORWARE_PRINT_WAYPOINT:

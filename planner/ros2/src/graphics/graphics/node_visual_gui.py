@@ -494,6 +494,8 @@ class VisualsNode(Thread, Node):
                         msg_type="INFO",
                     )
                     self.pub_start_routine.publish(Int32(data=int(chr(key))))
+                    self.msg_routine_status = 0
+                    self.pub_routine_status.publish(Int8(data=0))
 
                 elif key == 32:  # Spacebar -> Pauses/Resumes the simulation
                     if self.msg_routine_status == 0:
@@ -512,17 +514,14 @@ class VisualsNode(Thread, Node):
 
                 elif key == 99:
                     self.msg_routine_status = 2
-                    if self.msg_routine_status is True:
-                        printlog(
-                            msg=f"Routine Paused",
-                            msg_type="INFO",
-                        )
-                    else:
-                        printlog(
-                            msg=f"Routine Resumed",
-                            msg_type="INFO",
-                        )
                     self.pub_routine_status.publish(Int8(data=self.msg_routine_status))
+                    # self._win_background = cv2.imread(self._win_background_path)
+                    # self._kiwibot_img = cv2.imread(
+                    #    self._kiwibot_img_path, cv2.IMREAD_UNCHANGED
+                    # )
+                    # self.turn_robot(
+                    #    heading_angle=float(os.getenv("BOT_INITIAL_YAW", default=0.0))
+                    # )
 
                 else:
                     printlog(
