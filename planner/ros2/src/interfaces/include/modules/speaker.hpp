@@ -120,6 +120,7 @@ private:
     int ambient = 0;
     int m_pause = 0;
     int m_multi_sound = 1;
+    bool restart = false;
     /* Thread to play the sound */
     pthread_t pthread_id;
     pthread_t pthread_id_ambient;

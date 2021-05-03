@@ -17,7 +17,7 @@ import os
 from threading import Thread, Event
 
 from std_msgs.msg import Int32
-from std_msgs.msg import Bool
+from std_msgs.msg import Int8
 
 import rclpy
 from rclpy.callback_groups import ReentrantCallbackGroup
@@ -122,7 +122,7 @@ class VisualsNode(Thread, Node):
 
         # ---------------------------------------------------------------------
         # Publishers
-        self.msg_routine_status = False
+
         # Uncomment
         # Publisher for activating the rear cam streaming
         self.msg_path_number = Int32()
@@ -133,8 +133,9 @@ class VisualsNode(Thread, Node):
             callback_group=self.callback_group,
         )
 
+        self.msg_routine_status = 0  # Resume(0), Pause(1), Cancel(2)
         self.pub_routine_status = self.create_publisher(
-            msg_type=Bool,
+            msg_type=Int8,
             topic="/path_planner/routine_status",
             qos_profile=qos_profile_sensor_data,
             callback_group=self.callback_group,
@@ -493,20 +494,34 @@ class VisualsNode(Thread, Node):
                         msg_type="INFO",
                     )
                     self.pub_start_routine.publish(Int32(data=int(chr(key))))
-                elif key == 32:
-                    self.msg_routine_status = not self.msg_routine_status
-                    if self.msg_routine_status is True:
+                    self.msg_routine_status = 0
+                    self.pub_routine_status.publish(Int8(data=0))
+
+                elif key == 32:  # Spacebar -> Pauses/Resumes the simulation
+                    if self.msg_routine_status == 0:
+                        self.msg_routine_status = 1
                         printlog(
                             msg=f"Routine Paused",
                             msg_type="INFO",
                         )
-
                     else:
+                        self.msg_routine_status = 0
                         printlog(
                             msg=f"Routine Resumed",
                             msg_type="INFO",
                         )
-                    self.pub_routine_status.publish(Bool(data=self.msg_routine_status))
+                    self.pub_routine_status.publish(Int8(data=self.msg_routine_status))
+
+                elif key == 99:
+                    self.msg_routine_status = 2
+                    self.pub_routine_status.publish(Int8(data=self.msg_routine_status))
+                    # self._win_background = cv2.imread(self._win_background_path)
+                    # self._kiwibot_img = cv2.imread(
+                    #    self._kiwibot_img_path, cv2.IMREAD_UNCHANGED
+                    # )
+                    # self.turn_robot(
+                    #    heading_angle=float(os.getenv("BOT_INITIAL_YAW", default=0.0))
+                    # )
 
                 else:
                     printlog(

@@ -116,6 +116,10 @@ void Speaker::speakerCb(const std_msgs::msg::Int8::SharedPtr msg)
         ********************************************/
 
     }
+    else if (msg->data < 0)
+    {
+        restart = true;
+    }
     else /*This case is to pause and resume the ambient music.*/
     {
         m_pause = 0;
@@ -184,6 +188,7 @@ void *Speaker::PlaySound()
 
 void *Speaker::AmbientSound()
 {
+    RCLCPP_INFO(this->get_logger(), "The thread ID is: %i", pthread_id_ambient);
     while (true)
     {
         if (!m_pause)
@@ -196,6 +201,11 @@ void *Speaker::AmbientSound()
             }
             while (readval_ambient = (read(readfd_ambient, buff_ambient, buff_size_ambient) > 0))
             {
+                if (restart)
+                {
+                    restart = false;
+                    break;
+                }
                 if (m_multi_sound)
                 {
                     if (pcm = snd_pcm_writei(pcm_handle, buff_ambient, frames) == -EPIPE)
@@ -211,6 +221,7 @@ void *Speaker::AmbientSound()
         }
     }
 }
+
 
 /* Class Destructor to clean up everything*/
 Speaker::~Speaker()

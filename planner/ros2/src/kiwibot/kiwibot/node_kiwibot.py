@@ -25,7 +25,6 @@ from usr_srvs.srv import Move
 from usr_srvs.srv import Turn
 
 from std_msgs.msg import Int8
-from std_msgs.msg import Bool
 
 from usr_msgs.msg import Kiwibot as kiwibot_status
 
@@ -104,7 +103,7 @@ class KiwibotNode(Node):
 
         # Subscribers
         self.sub_routine_status = self.create_subscription(
-            msg_type=Bool,
+            msg_type=Int8,
             topic="/path_planner/routine_status",
             callback=self.cb_routine_status,
             qos_profile=qos_profile_sensor_data,
@@ -129,7 +128,7 @@ class KiwibotNode(Node):
             callback_group=self.callback_group,
         )
 
-    def cb_routine_status(self, msg: Bool):
+    def cb_routine_status(self, msg: Int8):
         self.routine_status = msg.data
 
     def cb_srv_robot_turn(self, request, response) -> Turn:
@@ -149,6 +148,21 @@ class KiwibotNode(Node):
             for idx, turn_ref in enumerate(request.turn_ref[:-1]):
 
                 while self.routine_status:
+                    if self.routine_status == 2:
+                        printlog(
+                            msg="The routine was cancelled",
+                            msg_type="OKGREEN",
+                        )
+                        self.status.moving = False
+                        self.status.yaw = float(
+                            os.getenv("BOT_INITIAL_YAW", default=0.0)
+                        )
+                        self.status.pos_x = int(os.getenv("BOT_INITIAL_X", default=917))
+                        self.status.pos_y = int(
+                            os.getenv("BOT_INITIAL_Y", default=1047)
+                        )
+                        self.pub_bot_status.publish(self.status)
+                        return False
                     pass
 
                 if self._TURN_PRINT_WAYPOINT:
@@ -198,6 +212,21 @@ class KiwibotNode(Node):
 
             for wp in request.waypoints:
                 while self.routine_status:
+                    if self.routine_status == 2:
+                        printlog(
+                            msg="The routine was cancelled",
+                            msg_type="OKGREEN",
+                        )
+                        self.status.moving = False
+                        self.status.yaw = float(
+                            os.getenv("BOT_INITIAL_YAW", default=0.0)
+                        )
+                        self.status.pos_x = int(os.getenv("BOT_INITIAL_X", default=917))
+                        self.status.pos_y = int(
+                            os.getenv("BOT_INITIAL_Y", default=1047)
+                        )
+                        self.pub_bot_status.publish(self.status)
+                        return False
                     pass
 
                 if self._FORWARE_PRINT_WAYPOINT:
