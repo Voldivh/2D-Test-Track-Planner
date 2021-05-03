@@ -283,8 +283,11 @@ RUN \
     && apt autoremove && apt clean -y \ 
     && rm -rf /var/lib/apt/lists/*
 
-#RUN echo "source /opt/ros/foxy/setup.bash" >> ~/.bashrc
 
+#Source the ros2 package so that every terminal have access to the commands
+#Not working
+RUN echo "source /opt/ros/foxy/setup.bash" >> ~/.bashrc
+SHELL ["/bin/bash","--login","-c"]
 # # -----------------------------------------------------------------------------
 # # For wifi configuration and settings
 # ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
