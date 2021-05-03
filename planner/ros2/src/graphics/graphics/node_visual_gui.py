@@ -89,7 +89,7 @@ class VisualsNode(Thread, Node):
         # message type: planner_msg
         # callback:cb_path_planner
 
-        # Creates the subscriber for the Path Planner Status, Queue size = 10
+        # Creates the subscriber for the Path Planner Status
         self.path_planner_status = self.create_subscription(
             msg_type=planner_msg,
             topic="/path_planner/msg",
@@ -104,7 +104,7 @@ class VisualsNode(Thread, Node):
         # message type: kiwibot_msg
         # callback:cb_kiwibot_status
 
-        # Creates the subscriber for the Kiwibot Status, Queue size = 10
+        # Creates the subscriber for the Kiwibot Status
         self.kiwibot_status = self.create_subscription(
             msg_type=kiwibot_msg,
             topic="/kiwibot/status",

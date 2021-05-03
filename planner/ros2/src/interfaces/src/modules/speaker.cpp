@@ -119,7 +119,7 @@ void Speaker::speakerCb(const std_msgs::msg::Int8::SharedPtr msg)
     {
         RCLCPP_DEBUG(this->get_logger(), "Sound stopped");
         m_pause = 1;
-        m_multi_sound = 1; /*Change to 0 maybe */
+        m_multi_sound = 1;
     }
 }
 
@@ -139,7 +139,9 @@ void *Speaker::PlaySound()
     * https://docs.ros.org/en/foxy/Tutorials/Writing-A-Simple-Cpp-Publisher-And-Subscriber.html#write-the-publisher-node
     ********************************************/
     std_msgs::msg::Bool::UniquePtr msg(new std_msgs::msg::Bool());
-    m_done_pub->publish(std::move(msg));
+    /* Publishes a false when the sound starts.*/
+    msg->data=false
+    m_done_pub->publish(std::move(msg)); /* There is no subscriber to this topic. 
 
     /********************************************
     * END CODE 
@@ -158,6 +160,7 @@ void *Speaker::PlaySound()
     }
     m_multi_sound = 1;
 
+
     /********************************************
     * PUBLISH YOUR AMAZING BOOL DATA
     * Take Care: in order to publish a Unique Pointer you need to pass std::move(msg) 
@@ -165,7 +168,11 @@ void *Speaker::PlaySound()
     * Documentation here:
     * https://docs.ros.org/en/foxy/Tutorials/Writing-A-Simple-Cpp-Publisher-And-Subscriber.html#write-the-publisher-node
     ********************************************/
-    // This is just for clean the variable name and re-initialize it.
+    /* Publishes a true when the sound ends.*/
+    msg->data=false
+    m_done_pub->publish(std::move(msg)); // There is no subscriber to this topic. 
+
+    //This is just for clean the variable name and re-initialize it.
     msg.reset(new std_msgs::msg::Bool());
     
     /********************************************

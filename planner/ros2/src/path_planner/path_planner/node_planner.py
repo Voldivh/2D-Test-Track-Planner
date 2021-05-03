@@ -499,9 +499,7 @@ class PlannerNode(Node):
         v_max = d / (t_a + t_c)  # Max velocity of the trajectory
 
         dt = time / n  # Delta of time for the discrete trajectory
-        d_a = 0  # Distance Traveled in acceleration
-        d_c = 0  # Distance Traveled at max velocity
-        d_d = 0  # Distance Traveled in deceleration
+        d_t = 0  # Total distance traveled
 
         for i in range(n):
 
@@ -576,9 +574,7 @@ class PlannerNode(Node):
 
         dt = time / n  # Delta of time for the discrete trajectory
 
-        d_a = 0  # Degrees Traveled in acceleration
-        d_c = 0  # Degrees Traveled at max velocity
-        d_d = 0  # Degrees Traveled in deceleration
+        d_t = 0  # Total degrees traveled
 
         for i in range(n):
             idx = i + 1
@@ -586,20 +582,22 @@ class PlannerNode(Node):
             if t <= t_a:  # For accelerating
                 b = t  # Base of the triangle
                 h = w_max * t / t_a  # Height of the triangle
-                d_a = b * h / 2  # Distance traveled (Area below the curve)
+                d_t = b * h / 2  # Distance traveled (Area below the curve)
 
             elif t > t_a and t <= (t_a + t_c):  # For max velocity
                 b = t - t_a  # Base of the rectangle
                 h = w_max  # Height of the rectangle
-                d_c = b * h  # Distance traveled (Area below the curve)
+                d_t = (
+                    b * h + w_max * t_a / 2
+                )  # Distance traveled (Area below the curve)
 
             else:  # For decelerating
                 b = t - (t_a + t_c)  # Base of the rectangle
                 h1 = w_max * (1 - b / t_a)  # Height of smaller side of the trapezoid
                 h2 = w_max  # Height of bigger side of the trapezoid
-                d_d = (h1 + h2) * b / 2  # Distance traveled (Area below the curve)
-
-            d_t = d_a + d_c + d_d  # Total degrees turned
+                d_t = (
+                    ((h1 + h2) * b / 2) + (w_max * t_a / 2) + (w_max * t_c)
+                )  # Distance traveled (Area below the curve)
 
             wp = {"idx": idx, "a": d_t, "t": t, "dt": dt}
             turn_points.append(wp)
