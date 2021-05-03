@@ -176,7 +176,7 @@ Respond below every questions:
 
 11. [Docker] If you modify a layer what happen with the previous and the next ones?
 
-    The layers are built one on top of the previous one and are read only. If we modify a layer, this layer would be built on top of the previous one and the next ones would be built on top of the modified layer. This would mean the image would have to be rebuild.
+    The layers are built one on top of the previous one and are read only. If we modify a layer, this layer would be built on top of the previous one and the next one would be built on top of the modified layer. This would mean the image would have to be rebuild the modified layer by deleting the previous version. The unmodified layer wouldn't need to rebuild since the build of this layers are saved on the cache memory.
 
 12. [Docker] Can we change the basic image (`FROM ubuntu:20.04`) from the docker file to another?
 
