@@ -211,6 +211,7 @@ class PlannerNode(Node):
         else:
             self.way_points = {}
             self._in_execution = False
+            self.pub_speaker.publish(Int8(data=-1))
 
     def cb_start_routine(self, msg: Int32) -> None:
         """

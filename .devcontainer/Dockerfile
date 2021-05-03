@@ -283,6 +283,8 @@ RUN \
     && apt autoremove && apt clean -y \ 
     && rm -rf /var/lib/apt/lists/*
 
+#RUN echo "source /opt/ros/foxy/setup.bash" >> ~/.bashrc
+
 # # -----------------------------------------------------------------------------
 # # For wifi configuration and settings
 # ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
@@ -291,6 +293,7 @@ RUN \
 #     # ------------------------------
 #     && apt autoremove && apt clean -y \
 #     && rm -rf /var/lib/apt/lists/*
+#SHELL ["/bin/bash", "-c"]
 
 # -----------------------------------------------------------------------------
 # Switch back to dialog for any ad-hoc use of apt-get
