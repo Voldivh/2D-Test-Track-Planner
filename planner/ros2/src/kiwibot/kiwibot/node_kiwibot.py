@@ -102,6 +102,7 @@ class KiwibotNode(Node):
         # ---------------------------------------------------------------------
 
         # Subscribers
+        # Subscribes to check the routine status: Resume (0)/ Pause (1)/ Cancel (2) the routine
         self.sub_routine_status = self.create_subscription(
             msg_type=Int8,
             topic="/path_planner/routine_status",
@@ -147,12 +148,17 @@ class KiwibotNode(Node):
 
             for idx, turn_ref in enumerate(request.turn_ref[:-1]):
 
-                while self.routine_status:
-                    if self.routine_status == 2:
+                while (
+                    self.routine_status
+                ):  # Checks if the routine have to be paused or canceled.
+                    if (
+                        self.routine_status == 2
+                    ):  # Checks if the routine have to be canceled.
                         printlog(
                             msg="The routine was cancelled",
                             msg_type="OKGREEN",
                         )
+                        # Updates and publish the variables to stop the movement and go back to the original position
                         self.status.moving = False
                         self.status.yaw = float(
                             os.getenv("BOT_INITIAL_YAW", default=0.0)
@@ -211,12 +217,17 @@ class KiwibotNode(Node):
         try:
 
             for wp in request.waypoints:
-                while self.routine_status:
-                    if self.routine_status == 2:
+                while (
+                    self.routine_status
+                ):  # Checks if the routine have to be paused or canceled.
+                    if (
+                        self.routine_status == 2
+                    ):  # Checks if the routine have to be canceled.
                         printlog(
                             msg="The routine was cancelled",
                             msg_type="OKGREEN",
                         )
+                        # Updates and publish the variables to stop the movement and go back to the original position
                         self.status.moving = False
                         self.status.yaw = float(
                             os.getenv("BOT_INITIAL_YAW", default=0.0)

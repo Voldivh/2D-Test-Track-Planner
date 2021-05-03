@@ -118,7 +118,7 @@ class PlannerNode(Node):
 
         # ---------------------------------------------------------------------
         # Subscribers
-
+        # Subscriber to start the selected routine
         self.sub_start_routine = self.create_subscription(
             msg_type=Int32,
             topic="/graphics/start_routine",
@@ -127,6 +127,7 @@ class PlannerNode(Node):
             callback_group=self.callback_group,
         )
 
+        # Subscriber to update the kiwibot status.
         self.kiwibot_state = Kiwibot()
         self.sub_kiwibot_stat = self.create_subscription(
             msg_type=Kiwibot,
@@ -136,6 +137,7 @@ class PlannerNode(Node):
             callback_group=self.callback_group,
         )
 
+        # Subscriber to update the routine status and Resume/Pause/Restart the audio.
         self.sub_routine_status = self.create_subscription(
             msg_type=Int8,
             topic="/path_planner/routine_status",
@@ -206,9 +208,9 @@ class PlannerNode(Node):
             )
 
     def cb_routine_status(self, msg: Int8) -> None:
-        if msg.data == 0 or msg.data == 1:
+        if msg.data == 0 or msg.data == 1:  # Pauses/Resumes the audio.
             self.pub_speaker.publish(Int8(data=0))
-        else:
+        else:  # Reinitialize the variables to receive a new routine and restarts the audio.
             self.way_points = {}
             self._in_execution = False
             self.pub_speaker.publish(Int8(data=-1))

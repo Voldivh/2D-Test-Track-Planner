@@ -123,8 +123,7 @@ class VisualsNode(Thread, Node):
         # ---------------------------------------------------------------------
         # Publishers
 
-        # Uncomment
-        # Publisher for activating the rear cam streaming
+        # Publisher for starting a routine
         self.msg_path_number = Int32()
         self.pub_start_routine = self.create_publisher(
             msg_type=Int32,
@@ -133,7 +132,8 @@ class VisualsNode(Thread, Node):
             callback_group=self.callback_group,
         )
 
-        self.msg_routine_status = 0  # Resume(0), Pause(1), Cancel(2)
+        # Publisher to update the status of the routine: Resume(0), Pause(1), Cancel(2)
+        self.msg_routine_status = 0  # Initializes the variable to wait for an order.
         self.pub_routine_status = self.create_publisher(
             msg_type=Int8,
             topic="/path_planner/routine_status",
@@ -355,10 +355,7 @@ class VisualsNode(Thread, Node):
             _: Image with robot drawn
         """
         # -----------------------------------------
-        # Insert you solution here
-
-        # I moved the image of the kiwibot manually to center it and then noticed the arg src_center.
-        # Sad Face :c
+        # Overlays the kiwibot image on top of the map at the center of the cropped section.
         map_with_kiwibot = overlay_image(
             l_img, s_img, pos, transparency, src_center=True
         )
@@ -443,11 +440,14 @@ class VisualsNode(Thread, Node):
             img_src: `cv2.math` map image with keypoints drawn
         """
         # -----------------------------------------
-        # Insert you solution here
         radius = 12  # Radius of the circle
         color = (0, 0, 255)  # Color of the circle in BGR
         thickness = 2  # Thickness of the line. Use -1 to fill the circle
-        for i in land_marks:
+        for (
+            i
+        ) in (
+            land_marks
+        ):  # Draw a red circle on the position of each landmark of the selected routine.
             cv2.circle(self._win_background, (i.x, i.y), radius, color, thickness)
         # -----------------------------------------
 
@@ -498,13 +498,13 @@ class VisualsNode(Thread, Node):
                     self.pub_routine_status.publish(Int8(data=0))
 
                 elif key == 32:  # Spacebar -> Pauses/Resumes the simulation
-                    if self.msg_routine_status == 0:
+                    if self.msg_routine_status == 0:  # Pause
                         self.msg_routine_status = 1
                         printlog(
                             msg=f"Routine Paused",
                             msg_type="INFO",
                         )
-                    else:
+                    else:  # Resume
                         self.msg_routine_status = 0
                         printlog(
                             msg=f"Routine Resumed",
@@ -512,16 +512,9 @@ class VisualsNode(Thread, Node):
                         )
                     self.pub_routine_status.publish(Int8(data=self.msg_routine_status))
 
-                elif key == 99:
+                elif key == 99:  # c -> Cancels the current routine
                     self.msg_routine_status = 2
                     self.pub_routine_status.publish(Int8(data=self.msg_routine_status))
-                    # self._win_background = cv2.imread(self._win_background_path)
-                    # self._kiwibot_img = cv2.imread(
-                    #    self._kiwibot_img_path, cv2.IMREAD_UNCHANGED
-                    # )
-                    # self.turn_robot(
-                    #    heading_angle=float(os.getenv("BOT_INITIAL_YAW", default=0.0))
-                    # )
 
                 else:
                     printlog(

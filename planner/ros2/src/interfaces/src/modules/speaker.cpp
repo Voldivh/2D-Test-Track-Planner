@@ -89,7 +89,8 @@ void Speaker::speakerCb(const std_msgs::msg::Int8::SharedPtr msg)
 {
     /*
 +       Note: Every sound-track should be named "track#"
-        To Pause send a 0 message.
+        To Pause/Resume send a 0 message.
+        To Restart send a -1 message.
     */
     
     snd_pcm_start(pcm_handle);
@@ -116,19 +117,19 @@ void Speaker::speakerCb(const std_msgs::msg::Int8::SharedPtr msg)
         ********************************************/
 
     }
-    else if (msg->data < 0)
+    else if (msg->data < 0) /*Indicates the audio have to restart */
     {
         restart = true;
     }
-    else /*This case is to pause and resume the ambient music.*/
+    else /*This case is to pause and resume the ambient audio.*/
     {
         m_pause = 0;
-        if (m_multi_sound == 0)
+        if (m_multi_sound == 0) /*Resumes the audio */
         {
             RCLCPP_INFO(this->get_logger(), "Sound resumed");
             m_multi_sound = 1;
         }
-        else
+        else /*Pauses the audio */
         {
             RCLCPP_INFO(this->get_logger(), "Sound stopped");
             m_multi_sound = 0;
@@ -152,6 +153,9 @@ void *Speaker::PlaySound()
     * https://docs.ros.org/en/foxy/Tutorials/Writing-A-Simple-Cpp-Publisher-And-Subscriber.html#write-the-publisher-node
     ********************************************/
     std_msgs::msg::Bool::UniquePtr msg(new std_msgs::msg::Bool());
+
+    /*Publishes a false when the sounds begins*/
+    msg->data=false
     m_done_pub->publish(std::move(msg));
 
     /********************************************
@@ -180,6 +184,10 @@ void *Speaker::PlaySound()
     ********************************************/
     // This is just for clean the variable name and re-initialize it.
     msg.reset(new std_msgs::msg::Bool());
+
+    /*Publishes a true when the sounds ends*/
+    msg->data=true
+    m_done_pub->publish(std::move(msg));
     
     /********************************************
     * END CODE 
@@ -188,7 +196,6 @@ void *Speaker::PlaySound()
 
 void *Speaker::AmbientSound()
 {
-    RCLCPP_INFO(this->get_logger(), "The thread ID is: %i", pthread_id_ambient);
     while (true)
     {
         if (!m_pause)
@@ -201,7 +208,7 @@ void *Speaker::AmbientSound()
             }
             while (readval_ambient = (read(readfd_ambient, buff_ambient, buff_size_ambient) > 0))
             {
-                if (restart)
+                if (restart) //Checks if the ambient audio have to restart due to the cancelation of a routine
                 {
                     restart = false;
                     break;
