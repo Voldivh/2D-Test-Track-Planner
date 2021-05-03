@@ -119,6 +119,7 @@ void Speaker::speakerCb(const std_msgs::msg::Int8::SharedPtr msg)
     }
     else if (msg->data < 0) /*Indicates the audio have to restart */
     {
+        RCLCPP_INFO(this->get_logger(), "Sound restarted");
         restart = true;
     }
     else /*This case is to pause and resume the ambient audio.*/
@@ -131,7 +132,7 @@ void Speaker::speakerCb(const std_msgs::msg::Int8::SharedPtr msg)
         }
         else /*Pauses the audio */
         {
-            RCLCPP_INFO(this->get_logger(), "Sound stopped");
+            RCLCPP_INFO(this->get_logger(), "Sound paused");
             m_multi_sound = 0;
         }
     }
@@ -155,7 +156,7 @@ void *Speaker::PlaySound()
     std_msgs::msg::Bool::UniquePtr msg(new std_msgs::msg::Bool());
 
     /*Publishes a false when the sounds begins*/
-    msg->data=false
+    msg->data=false;
     m_done_pub->publish(std::move(msg));
 
     /********************************************
@@ -186,7 +187,7 @@ void *Speaker::PlaySound()
     msg.reset(new std_msgs::msg::Bool());
 
     /*Publishes a true when the sounds ends*/
-    msg->data=true
+    msg->data=true;
     m_done_pub->publish(std::move(msg));
     
     /********************************************
